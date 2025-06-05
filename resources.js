@@ -173,6 +173,8 @@ class metrics extends Resource {
     bytes_received_gauge.reset();
     success_gauge.reset();
     response_status_code_gauge.reset();
+    messages_sent_gauge.reset();
+    messages_received_gauge.reset();
 
     filesystem_size_bytes.reset();
     filesystem_avail_bytes.reset();
