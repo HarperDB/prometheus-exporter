@@ -260,7 +260,7 @@ class metrics extends Resource {
     const { cpuPercent, user, system } = this.getCPUUsage();
     gaugeSet(harperdb_cpu_percentage_gauge, {}, cpuPercent);
     this.setLastScrapeTime(Number(process.hrtime.bigint() / 1000n));
-    this.setLastCPUTimes(process.cpuUsage({ user, system }));
+    this.setLastCPUTimes(process.cpuUsage());
 
     // retrieve cluster_network details if notFast
     if(notFast) {
