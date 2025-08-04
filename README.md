@@ -200,6 +200,8 @@ Metrics specific to HarperDB (all metrics are [Gauges](https://prometheus.io/doc
 | `filesystem_size_bytes` | Filesystem size in bytes. |
 | `filesystem_free_bytes` | Filesystem free space in bytes. |
 | `filesystem_used_bytes` | Filesystem space used in bytes. |
+| `cluster_ping`                           | Cluster ping latency in milliseconds.                                                                                                                                                                                                                                             |
+
 A complete sample response of `/metrics`:
 ```text
 # HELP process_cpu_user_seconds_total Total user CPU time spent in seconds.
