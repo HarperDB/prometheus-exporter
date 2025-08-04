@@ -174,6 +174,11 @@ const replication_backlog_gauge = new Prometheus.Gauge({
   help: "Number of pending replication consumers",
   labelNames: ["origin", "database", "table"],
 });
+const replication_backlog_time_gauge = new Prometheus.Gauge({
+  name: "replication_backlog_time_gauge",
+  help: "The difference in milliseconds between lastReceivedRemoteTime and lastReceivedLocalTime for each of the node's dbs",
+  labelName: ["node", "database"],
+});
 
 const thread_heap_total_gauge = new Prometheus.Gauge({
   name: "thread_heap_total",
@@ -399,6 +404,7 @@ class metrics extends Resource {
     cluster_connected_dbs_gauge.reset();
     cluster_disconnected_dbs_gauge.reset();
     replication_backlog_gauge.reset();
+    replication_backlog_time_gauge.reset();
 
     thread_heap_total_gauge.reset();
     thread_heap_used_gauge.reset();
@@ -538,6 +544,19 @@ class metrics extends Resource {
                 } else {
                   total_disconnected++;
                 }
+                const lastReceivedRemoteMillis = Date.parse(
+                  socket.lastReceivedRemoteTime,
+                );
+                const lastReceivedLocalMills = Date.parse(
+                  socket.lastReceivedLocalTime,
+                );
+                const replicationTime =
+                  lastReceivedRemoteMillis - lastReceivedLocalMills;
+                gaugeSet(
+                  replication_backlog_time_gauge,
+                  { node: node?.name, database: socket.database },
+                  replicationTime,
+                );
               });
 
               gaugeSet(
