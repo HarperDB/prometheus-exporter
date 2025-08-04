@@ -203,6 +203,7 @@ Metrics specific to Harper (all metrics are [Gauges](https://prometheus.io/docs/
 | `cluster_ping`                           | Cluster ping latency in milliseconds.                                                                                                                                                                                                                                             |
 | `cluster_connected_dbs`                  | Count of connected dbs by node.                                                                                                                                                                                                                                                   |
 | `cluster_disconnected_dbs`               | Count of disconnected dbs by node.                                                                                                                                                                                                                                                |
+| `replication_backlog`                    | Number of pending replication consumers by origin, database, & table.                                                                                                                                                                                                             |
 
 A complete sample response of `/metrics`:
 ```text
