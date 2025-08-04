@@ -2,13 +2,13 @@
 
 ![NPM Version](https://img.shields.io/npm/v/%40harperdb%2Fprometheus-exporter)
 
-[HarperDB's](https://www.harperdb.io/) Prometheus Exporter. This Application exposes Node.js and HarperDB metrics via a /metrics endpoint.  
-This exporter plugs in directly to an instance of HarperDB and responds to Prometheus scrapes.
+[Harper's](https://www.harperdb.io/) Prometheus Exporter. This Application exposes Node.js and Harper metrics via a /metrics endpoint.  
+This exporter plugs in directly to an instance of Harper and responds to Prometheus scrapes.
 
 > [!NOTE]
-> This exporter will only work with HarperDB v4.2 or higher. (If you are looking for a compatible version for below v4.2 check [here](https://github.com/HarperDB-Add-Ons/prometheus_exporter/releases/tag/v0.1.1))
+> This exporter will only work with Harper v4.2 or higher. (If you are looking for a compatible version for below v4.2 check [here](https://github.com/HarperDB/prometheus_exporter/releases/tag/v0.1.1))
 
-## HarperDB Setup
+## Harper Setup
 ### Instructions for v4.2.0 and higher (including beta releases)
 1. Note your components port:
 
@@ -25,15 +25,15 @@ This exporter plugs in directly to an instance of HarperDB and responds to Prome
       sessionAffinity: null
       timeout: 120000
    ```
-   Note your defined `port`. Please reference [HarperDB configuration documentation](https://docs.harperdb.io/harperdb-4.2-pre-release/configuration#http) for more details.
-2. Clone this repo to the `$hdb/components` directory of your HarperDB instance.
+   Note your defined `port`. Please reference [Harper configuration documentation](https://docs.harperdb.io/docs/deployments/configuration#http) for more details.
+2. Clone this repo to the `$hdb/components` directory of your Harper instance.
 3. From the `$hdb/components/prometheus_exporter` folder run `npm install`
 4. [Restart Components]([https://docs.harperdb.io/docs/developers/applications#restarting-your-instance]).
 
 ## Prometheus Setup
-Some small configuration changes are needed in your prometheus.yml to tell Prometheus the address of the HarperDB Exporter metrics end point.
-To know what port to use you should reference bullet point 1 in HarperDB Setup.
-A HarperDB Custom Function project creates a path off of the host address.  The default for this exporter project would be `/prometheus_exporter/metrics`. If you rename this project's
+Some small configuration changes are needed in your prometheus.yml to tell Prometheus the address of the Harper Exporter metrics end point.
+To know what port to use you should reference bullet point 1 in Harper Setup.
+A Harper Custom Function project creates a path off of the host address.  The default for this exporter project would be `/prometheus_exporter/metrics`. If you rename this project's
 A sample prometheus configuration would look like:
 ```yaml
 scrape_configs:
@@ -45,14 +45,14 @@ scrape_configs:
         labels:
           node: 'node-alpha'
 ```
-We define a custom `metrics_path` to tell Prometheus where to access the HarperDB Exporter path.  You can also see we added a label for our target, we recommend doing similar for your configuration to allow for filtering between instance metrics.
+We define a custom `metrics_path` to tell Prometheus where to access the Harper Exporter path.  You can also see we added a label for our target, we recommend doing similar for your configuration to allow for filtering between instance metrics.
 
 ## Exporter Settings
 Metric access is controlled by three settings that can be configured using the [REST](https://docs.harperdb.io/docs/developers/rest) endpoint for `prometheus_exporter/PrometheusExporterSettings`. The user used to authenticate these REST requests must have write access to the table `PrometheusExporterSettings`:
 1. `forceAuthorization`
-  * `true` or `false`. If true, you must authenticate with HarperDB in order to access the metrics endpoint `/prometheus_exporter/metrics`
+  * `true` or `false`. If true, you must authenticate with Harper in order to access the metrics endpoint `/prometheus_exporter/metrics`
 2. `authorizedUsers`
-   * Array of Username (HarperDB users) strings. Only used if `forceAuthorization` is `true`. If empty, the user used to authenticate must be a `super_user`. If there are any strings in the array, those users will be authorized to access as well as any super users.
+   * Array of Username (Harper users) strings. Only used if `forceAuthorization` is `true`. If empty, the user used to authenticate must be a `super_user`. If there are any strings in the array, those users will be authorized to access as well as any super users.
 3. `customMetrics`
    * Object array of values that define converting Harper custom metric(s) to Prometheus metric(s). The definition is as follows:
      * `metricAttribute` (required): The Harper metric name that needs to be processed as a custom Prometheus metric.
@@ -171,35 +171,39 @@ curl --location --request PUT 'http://localhost:9926/prometheus_exporter/Prometh
 ## Metrics
 We expose default metrics from the [Prometheus client](https://github.com/siimon/prom-client); a list of the metrics can be found [here](https://github.com/siimon/prom-client/blob/master/example/default-metrics.js).
 
-Metrics specific to HarperDB (all metrics are [Gauges](https://prometheus.io/docs/concepts/metric_types/#gauge)):
+Metrics specific to Harper (all metrics are [Gauges](https://prometheus.io/docs/concepts/metric_types/#gauge)):
 
-| Metric   | Description                                                                                                                                                      |
-|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `harperdb_table_puts_total` | Total number of non-delete writes by table.                                                                                                                      |
-| `harperdb_table_deletes_total` | Total number of deletes by table.                                                                                                                                |
-| `harperdb_table_txns_total` | Total number of transactions by table.                                                                                                                           |
-| `harperdb_table_page_flushes_total` |Total number of times all pages have been flushed for a table. HarperDB batches writes to disk for better performance, and this metric tracks how many times these batch writes have occurred at the disk level.|
-| `harperdb_table_writes_total` | Total number of disk write operations by table.                                                                                                                  |
-| `harperdb_table_pages_written_total` | Total number of pages written to disk by table. This is higher than writes because sequential pages can be written in a single write operation.                  |
-| `harperdb_table_time_during_txns_total` | Total time from when transaction was started (lock acquired) until finished and all writes have been made (but not necessarily flushed/synced to disk) by table. |
-| `harperdb_table_time_start_txns_total` | Total time spent waiting for transaction lock acquisition by table.                                                                                              |
-| `harperdb_table_time_page_flushes_total` | Total time spent on write calls by table.                                                                                                                        |
-| `harperdb_table_time_sync_total` | Total time spent on write calls by table.                                                                                                                        |
-| `harperdb_process_threads_count` | Number of threads in the HarperDB core process.                                                                                                                  |
-| `harperdb_process_cpu_utilization` | CPU utilization of a HarperDB process.                                                                                                                           |
-| `connection` | Number of successful connection attempts by protocol                                                                                                             |
-| `open_connections` | Average number of connections across all threads                                                                                                                 |
-| `bytes_sent` | Bytes sent by protocol                                                                                                                                           |
-| `bytes_received` | Bytes received by protocol                                                                                                                                       |
-| `cache_hit` | Number of cache hits by table                                                                                                                                    |
-| `cache_miss` | Number of cache misses by table                                                                                                                                  |
-| `success` | Number of success requests by endpoint                                                                                                                           |
-| `duration` | Time for HarperDB to execute request in ms                                                                                                                       |
-| `cache_resolution` | Time to resolve a cache miss                                                                                                                                     |
-| `transfer` | Total time spent transferring the response (in ms), from the first header packet to the final packet. HarperDB honors "back-pressure," so if the client/network is slow, transfer is paced to prevent buffer overload. This reflects how long it takes to deliver larger responses.                                                                                     |
-| `filesystem_size_bytes` | Filesystem size in bytes. |
-| `filesystem_free_bytes` | Filesystem free space in bytes. |
-| `filesystem_used_bytes` | Filesystem space used in bytes. |
+| Metric                                   | Description                                                                                                                                                                                                                                                                       |
+|------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `harperdb_table_puts_total`              | Total number of non-delete writes by table.                                                                                                                                                                                                                                       |
+| `harperdb_table_deletes_total`           | Total number of deletes by table.                                                                                                                                                                                                                                                 |
+| `harperdb_table_txns_total`              | Total number of transactions by table.                                                                                                                                                                                                                                            |
+| `harperdb_table_page_flushes_total`      | Total number of times all pages have been flushed for a table. Harper batches writes to disk for better performance, and this metric tracks how many times these batch writes have occurred at the disk level.                                                                    |
+| `harperdb_table_writes_total`            | Total number of disk write operations by table.                                                                                                                                                                                                                                   |
+| `harperdb_table_pages_written_total`     | Total number of pages written to disk by table. This is higher than writes because sequential pages can be written in a single write operation.                                                                                                                                   |
+| `harperdb_table_time_during_txns_total`  | Total time from when transaction was started (lock acquired) until finished and all writes have been made (but not necessarily flushed/synced to disk) by table.                                                                                                                  |
+| `harperdb_table_time_start_txns_total`   | Total time spent waiting for transaction lock acquisition by table.                                                                                                                                                                                                               |
+| `harperdb_table_time_page_flushes_total` | Total time spent on write calls by table.                                                                                                                                                                                                                                         |
+| `harperdb_table_time_sync_total`         | Total time spent on write calls by table.                                                                                                                                                                                                                                         |
+| `harperdb_process_threads_count`         | Number of threads in the Harper core process.                                                                                                                                                                                                                                     |
+| `harperdb_process_cpu_utilization`       | CPU utilization of a Harper process.                                                                                                                                                                                                                                              |
+| `connection`                             | Number of successful connection attempts by protocol                                                                                                                                                                                                                              |
+| `open_connections`                       | Average number of connections across all threads                                                                                                                                                                                                                                  |
+| `bytes_sent`                             | Bytes sent by protocol                                                                                                                                                                                                                                                            |
+| `bytes_received`                         | Bytes received by protocol                                                                                                                                                                                                                                                        |
+| `cache_hit`                              | Number of cache hits by table                                                                                                                                                                                                                                                     |
+| `cache_miss`                             | Number of cache misses by table                                                                                                                                                                                                                                                   |
+| `success`                                | Number of success requests by endpoint                                                                                                                                                                                                                                            |
+| `duration`                               | Time for Harper to execute request in ms                                                                                                                                                                                                                                          |
+| `cache_resolution`                       | Time to resolve a cache miss                                                                                                                                                                                                                                                      |
+| `transfer`                               | Total time spent transferring the response (in ms), from the first header packet to the final packet. Harper honors "back-pressure," so if the client/network is slow, transfer is paced to prevent buffer overload. This reflects how long it takes to deliver larger responses. |
+| `filesystem_size_bytes`                  | Filesystem size in bytes.                                                                                                                                                                                                                                                         |
+| `filesystem_free_bytes`                  | Filesystem free space in bytes.                                                                                                                                                                                                                                                   |
+| `filesystem_used_bytes`                  | Filesystem space used in bytes.                                                                                                                                                                                                                                                   |
+| `cluster_ping`                           | Cluster ping latency in milliseconds.                                                                                                                                                                                                                                             |
+| `cluster_connected_dbs`                  | Count of connected dbs by node.                                                                                                                                                                                                                                                   |
+| `cluster_disconnected_dbs`               | Count of disconnected dbs by node.                                                                                                                                                                                                                                                |
+
 A complete sample response of `/metrics`:
 ```text
 # HELP process_cpu_user_seconds_total Total user CPU time spent in seconds.
@@ -401,11 +405,11 @@ harperdb_table_time_page_flushes_total{database="dev",table="dog"} 0
 harperdb_table_time_sync_total{database="dev",table="breed"} 0
 harperdb_table_time_sync_total{database="dev",table="dog"} 0
 
-# HELP harperdb_process_threads_count Number of threads in the HarperDB core process
+# HELP harperdb_process_threads_count Number of threads in the Harper core process
 # TYPE harperdb_process_threads_count gauge
 harperdb_process_threads_count 6
 
-# HELP harperdb_process_cpu_utilization CPU utilization of a HarperDB process
+# HELP harperdb_process_cpu_utilization CPU utilization of a Harper process
 # TYPE harperdb_process_cpu_utilization gauge
 harperdb_process_cpu_utilization{process_name="harperdb_core"} 0.00028240014775250785
 harperdb_process_cpu_utilization{process_name="harperdb_clustering_hub"} 0.001069399009124807
