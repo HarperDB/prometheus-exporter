@@ -157,6 +157,20 @@ const cluster_ping_gauge = new Prometheus.Gauge({
 	help: 'Cluster ping response time in milliseconds',
 	labelNames: ['node']
 });
+const cluster_connected_dbs_gauge = new Prometheus.Gauge(
+	{
+		name: 'cluster_connected_dbs',
+		help: "The node's connected databases",
+		labelNames: ['node']
+	}
+);
+const cluster_disconnected_dbs_gauge = new Prometheus.Gauge(
+	{
+		name: 'cluster_disconnected_dbs',
+		help: "The node's disconnected databases",
+		labelNames: ['node']
+	}
+);
 const replication_backlog_gauge = new Prometheus.Gauge({
 	name: 'replication_backlog',
 	help: 'Number of pending replication consumers',
@@ -344,6 +358,8 @@ class metrics extends Resource {
 		filesystem_used_bytes.reset();
 
 		cluster_ping_gauge.reset();
+		cluster_connected_dbs_gauge.reset();
+		cluster_disconnected_dbs_gauge.reset();
 		replication_backlog_gauge.reset();
 
 		thread_heap_total_gauge.reset();
@@ -451,11 +467,20 @@ class metrics extends Resource {
 						cluster_info.connections?.forEach(node => {
 							//calculate the average of latencies for the connected node
 							let total_latency = 0;
+							let total_connected = 0;
+							let total_disconnected = 0;
 							node.database_sockets.forEach(socket => {
 								total_latency += socket.latency;
+								if (socket.connected) {
+									total_connected++;
+								} else {
+									total_disconnected++;
+								}
 							});
 
 							gaugeSet(cluster_ping_gauge, {node: node?.name}, total_latency / node.database_sockets.length)
+							gaugeSet(cluster_connected_dbs_gauge, {node: node?.name}, total_connected);
+							gaugeSet(cluster_disconnected_dbs_gauge, {node: node?.name}, total_disconnected);
 						});
 					}
 				}
