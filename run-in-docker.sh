@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Run HarperDB with this plugin installed in Docker for local dev & testing
+# Run Harper with this plugin installed in Docker for local dev & testing
 
 container_name="prometheus-exporter-dev"
 
@@ -22,7 +22,7 @@ docker run -t -v "$(pwd)":/home/harperdb/hdb/components/prometheus_exporter \
   harperdb/harperdb &
 
 echo
-echo -n "Waiting for HarperDB to be ready..."
+echo -n "Waiting for Harper to be ready..."
 until curl -fs localhost:49925/health; do
   sleep 1
 done
@@ -32,7 +32,7 @@ curl -u admin:foobar -v localhost:49926/prometheus_exporter/PrometheusExporterSe
   -X PUT -L -H 'Content-Type: application/json' -d '{"value": false}'
 
 echo
-echo "HarperDB is running on port 49925 (operations API) & 49926 (REST API)"
+echo "Harper is running on port 49925 (operations API) & 49926 (REST API)"
 echo "You can access Prometheus metrics at http://localhost:49926/prometheus_exporter/metrics"
 echo
 

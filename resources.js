@@ -74,11 +74,11 @@ const time_sync_gauge = new Prometheus.Gauge({
 
 const thread_count_gauge = new Prometheus.Gauge({
   name: "harperdb_process_threads_count",
-  help: "Number of threads in the HarperDB core process",
+  help: "Number of threads in the Harper core process",
 });
 const harperdb_cpu_percentage_gauge = new Prometheus.Gauge({
   name: "harperdb_process_cpu_utilization",
-  help: "CPU utilization of a HarperDB process",
+  help: "CPU utilization of a Harper process",
   labelNames: ["process_name"],
 });
 
@@ -751,7 +751,7 @@ async function generateMetricsFromAnalytics(notFast) {
         case "TTFB":
         case "duration":
           output.push(
-            `# HELP ${metric.metric} Time for HarperDB to execute request in ms`,
+            `# HELP ${metric.metric} Time for Harper to execute request in ms`,
           );
           output.push(`# TYPE ${metric.metric} summary`);
           output.push(
