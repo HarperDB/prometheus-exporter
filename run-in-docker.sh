@@ -12,14 +12,14 @@ function cleanup {
 
 trap cleanup EXIT
 
-docker pull harperdb/harperdb
+docker pull harpersystems/harper
 docker rm $container_name >/dev/null || true
 docker run -t -v "$(pwd)":/home/harperdb/hdb/components/prometheus_exporter \
   --name $container_name \
   -p 49925:9925 -p 49926:9926 \
   -e HDB_ADMIN_USERNAME=admin -e HDB_ADMIN_PASSWORD=foobar \
   -e LOGGING_LEVEL=debug -e HTTP_PORT=9926 \
-  harperdb/harperdb &
+  harpersystems/harper &
 
 echo
 echo -n "Waiting for Harper to be ready..."
