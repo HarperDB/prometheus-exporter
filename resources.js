@@ -154,7 +154,7 @@ const filesystem_used_bytes = new Prometheus.Gauge({
 
 const cluster_ping_gauge = new Prometheus.Gauge({
 	name: 'cluster_ping',
-	help: 'Cluster ping response time',
+	help: 'Cluster ping response time in milliseconds',
 	labelNames: ['node']
 });
 const replication_backlog_gauge = new Prometheus.Gauge({
