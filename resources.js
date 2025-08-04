@@ -171,12 +171,12 @@ const cluster_disconnected_dbs_gauge = new Prometheus.Gauge({
 });
 const replication_backlog_gauge = new Prometheus.Gauge({
   name: "replication_backlog",
-  help: "Number of pending replication consumers",
+  help: "Number of pending replication consumers (for NATS replication only)",
   labelNames: ["origin", "database", "table"],
 });
 const replication_backlog_time_gauge = new Prometheus.Gauge({
   name: "replication_backlog_time_gauge",
-  help: "The difference in milliseconds between lastReceivedRemoteTime and lastReceivedLocalTime for each of the node's dbs",
+  help: "The difference in milliseconds between lastReceivedRemoteTime and lastReceivedLocalTime for each of the node's dbs (for Harper replication only)",
   labelName: ["node", "database"],
 });
 
