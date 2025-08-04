@@ -543,31 +543,31 @@ class metrics extends Resource {
               let total_connected = 0;
               let total_disconnected = 0;
               node.database_sockets.forEach((socket) => {
-                total_latency += socket.latency;
                 if (socket.connected) {
                   total_connected++;
+                  total_latency += socket.latency;
+                  const lastReceivedRemoteMillis = Date.parse(
+                    socket.lastReceivedRemoteTime,
+                  );
+                  const lastReceivedLocalMills = Date.parse(
+                    socket.lastReceivedLocalTime,
+                  );
+                  const replicationTime =
+                    lastReceivedRemoteMillis - lastReceivedLocalMills;
+                  gaugeSet(
+                    replication_backlog_time_gauge,
+                    { node: node?.name, database: socket.database },
+                    replicationTime,
+                  );
                 } else {
                   total_disconnected++;
                 }
-                const lastReceivedRemoteMillis = Date.parse(
-                  socket.lastReceivedRemoteTime,
-                );
-                const lastReceivedLocalMills = Date.parse(
-                  socket.lastReceivedLocalTime,
-                );
-                const replicationTime =
-                  lastReceivedRemoteMillis - lastReceivedLocalMills;
-                gaugeSet(
-                  replication_backlog_time_gauge,
-                  { node: node?.name, database: socket.database },
-                  replicationTime,
-                );
               });
 
               gaugeSet(
                 cluster_ping_gauge,
                 { node: node?.name },
-                total_latency / node.database_sockets.length,
+                total_latency / total_connected,
               );
               gaugeSet(
                 cluster_connected_dbs_gauge,
