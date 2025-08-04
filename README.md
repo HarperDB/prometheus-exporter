@@ -2,7 +2,7 @@
 
 ![NPM Version](https://img.shields.io/npm/v/%40harperdb%2Fprometheus-exporter)
 
-[Harper's](https://www.harperdb.io/) Prometheus Exporter. This Application exposes Node.js and Harper metrics via a /metrics endpoint.  
+[Harper's](https://www.harpersystems.dev/) Prometheus Exporter. This Application exposes Node.js and Harper metrics via a /metrics endpoint.  
 This exporter plugs in directly to an instance of Harper and responds to Prometheus scrapes.
 
 > [!NOTE]
