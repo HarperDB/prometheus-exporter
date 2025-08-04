@@ -201,6 +201,8 @@ Metrics specific to Harper (all metrics are [Gauges](https://prometheus.io/docs/
 | `filesystem_free_bytes`                  | Filesystem free space in bytes.                                                                                                                                                                                                                                                   |
 | `filesystem_used_bytes`                  | Filesystem space used in bytes.                                                                                                                                                                                                                                                   |
 | `cluster_ping`                           | Cluster ping latency in milliseconds.                                                                                                                                                                                                                                             |
+| `cluster_connected_dbs`                  | Count of connected dbs by node.                                                                                                                                                                                                                                                   |
+| `cluster_disconnected_dbs`               | Count of disconnected dbs by node.                                                                                                                                                                                                                                                |
 
 A complete sample response of `/metrics`:
 ```text
