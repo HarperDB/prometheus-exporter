@@ -1,0 +1,77 @@
+services:
+  harper1:
+    image: harpersystems/harper
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "https://localhost:9925/health"]
+    networks:
+      harper:
+    environment:
+      HDB_ADMIN_USERNAME: admin
+      HDB_ADMIN_PASSWORD: foobar
+      LOGGING_LEVEL: debug
+      HTTP_PORT: 9926
+      OPERATIONSAPI_NETWORK_PORT:
+      OPERATIONSAPI_NETWORK_SECUREPORT: 9925
+      REPLICATION_URL: wss://harper1:9933
+    volumes:
+      - .:/home/harperdb/hdb/components/prometheus_exporter
+    ports:
+      - "49925:9925"
+      - "49926:9926"
+  harper2:
+    image: harpersystems/harper
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "https://localhost:9925/health"]
+    networks:
+      harper:
+    environment:
+      HDB_ADMIN_USERNAME: admin
+      HDB_ADMIN_PASSWORD: foobar
+      LOGGING_LEVEL: debug
+      HTTP_PORT: 9926
+      OPERATIONSAPI_NETWORK_PORT:
+      OPERATIONSAPI_NETWORK_SECUREPORT: 9925
+      REPLICATION_URL: wss://harper2:9933
+    ports:
+      - "49935:9925"
+      - "49936:9926"
+  harper3:
+    image: harpersystems/harper
+    healthcheck:
+      test: ["CMD", "curl", "-sfk", "https://localhost:9925/health"]
+    networks:
+      harper:
+    environment:
+      HDB_ADMIN_USERNAME: admin
+      HDB_ADMIN_PASSWORD: foobar
+      LOGGING_LEVEL: debug
+      HTTP_PORT: 9926
+      OPERATIONSAPI_NETWORK_PORT:
+      OPERATIONSAPI_NETWORK_SECUREPORT: 9925
+      REPLICATION_URL: wss://harper3:9933
+    ports:
+      - "49945:9925"
+      - "49946:9926"
+  replication_setup_2:
+    build:
+      dockerfile: Dockerfile
+      context: replication_setup
+    command: [ "harper1", "harper2", "1" ]
+    networks:
+      harper:
+    depends_on:
+      - harper1
+      - harper2
+  replication_setup_3:
+    build:
+      dockerfile: Dockerfile
+      context: replication_setup
+    command: [ "harper3", "harper1", "3" ]
+    networks:
+      harper:
+    depends_on:
+      - harper1
+      - harper3
+
+networks:
+  harper:

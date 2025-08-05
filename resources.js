@@ -1,3 +1,5 @@
+/* global logger */
+
 import process from "node:process";
 import Prometheus from "prom-client";
 
@@ -175,9 +177,9 @@ const replication_backlog_gauge = new Prometheus.Gauge({
   labelNames: ["origin", "database", "table"],
 });
 const replication_backlog_time_gauge = new Prometheus.Gauge({
-  name: "replication_backlog_time_gauge",
+  name: "replication_backlog_time",
   help: "The difference in milliseconds between lastReceivedRemoteTime and lastReceivedLocalTime for each of the node's dbs (for Harper replication only)",
-  labelName: ["node", "database"],
+  labelNames: ["node", "database"],
 });
 
 const thread_heap_total_gauge = new Prometheus.Gauge({
@@ -541,14 +543,15 @@ class metrics extends Resource {
                 if (socket.connected) {
                   total_connected++;
                   total_latency += socket.latency;
+                  const lastReceivedLocalMillis = Date.parse(
+                    socket.lastReceivedLocalTime,
+                  );
                   const lastReceivedRemoteMillis = Date.parse(
                     socket.lastReceivedRemoteTime,
                   );
-                  const lastReceivedLocalMills = Date.parse(
-                    socket.lastReceivedLocalTime,
                   );
                   const replicationTime =
-                    lastReceivedRemoteMillis - lastReceivedLocalMills;
+                    lastReceivedLocalMillis - lastReceivedRemoteMillis;
                   gaugeSet(
                     replication_backlog_time_gauge,
                     { node: node?.name, database: socket.database },
@@ -647,7 +650,7 @@ async function generateMetricsFromAnalytics(notFast) {
 
   const output = [];
   const customMetrics = (await PrometheusExporterSettings.get("customMetrics"))
-    .value;
+    ?.value;
 
   for await (let metric of results) {
     if (metric) {
@@ -885,7 +888,7 @@ async function generateMetricsFromAnalytics(notFast) {
           let m_name = "replication_latency";
           // Split by '.' on the path value from the metric to get origin, database and table
           let [txn, database, table, origin] = metric.path?.split(".");
-          origin = origin.replace("-leaf", "");
+          origin = origin?.replace("-leaf", "");
           output.push(`# HELP ${m_name} Replication latency`);
           output.push(`# TYPE ${m_name} summary`);
           output.push(
@@ -922,7 +925,7 @@ async function generateMetricsFromAnalytics(notFast) {
           );
           break;
         default:
-          if (notFast) {
+          if (notFast && customMetrics) {
             await outputCustomMetrics(customMetrics, metric, output);
           }
           break;
