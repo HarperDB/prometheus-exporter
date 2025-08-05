@@ -177,7 +177,7 @@ const replication_backlog_gauge = new Prometheus.Gauge({
   labelNames: ["origin", "database", "table"],
 });
 const replication_backlog_time_gauge = new Prometheus.Gauge({
-  name: "replication_backlog_time_gauge",
+  name: "replication_backlog_time",
   help: "The difference in milliseconds between lastReceivedRemoteTime and lastReceivedLocalTime for each of the node's dbs (for Harper replication only)",
   labelName: ["node", "database"],
 });
