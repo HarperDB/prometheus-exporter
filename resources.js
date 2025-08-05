@@ -649,7 +649,7 @@ async function generateMetricsFromAnalytics(notFast) {
 
   const output = [];
   const customMetrics = (await PrometheusExporterSettings.get("customMetrics"))
-    .value;
+    ?.value;
 
   for await (let metric of results) {
     if (metric) {
@@ -887,7 +887,7 @@ async function generateMetricsFromAnalytics(notFast) {
           let m_name = "replication_latency";
           // Split by '.' on the path value from the metric to get origin, database and table
           let [txn, database, table, origin] = metric.path?.split(".");
-          origin = origin.replace("-leaf", "");
+          origin = origin?.replace("-leaf", "");
           output.push(`# HELP ${m_name} Replication latency`);
           output.push(`# TYPE ${m_name} summary`);
           output.push(
@@ -924,7 +924,7 @@ async function generateMetricsFromAnalytics(notFast) {
           );
           break;
         default:
-          if (notFast) {
+          if (notFast && customMetrics) {
             await outputCustomMetrics(customMetrics, metric, output);
           }
           break;
