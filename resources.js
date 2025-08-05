@@ -549,7 +549,6 @@ class metrics extends Resource {
                   const lastReceivedRemoteMillis = Date.parse(
                     socket.lastReceivedRemoteTime,
                   );
-                  );
                   const replicationTime =
                     lastReceivedLocalMillis - lastReceivedRemoteMillis;
                   gaugeSet(
