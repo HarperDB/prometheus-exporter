@@ -1,3 +1,5 @@
+/* global logger */
+
 import process from "node:process";
 import Prometheus from "prom-client";
 
