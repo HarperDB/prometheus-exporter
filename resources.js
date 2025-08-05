@@ -543,14 +543,15 @@ class metrics extends Resource {
                 if (socket.connected) {
                   total_connected++;
                   total_latency += socket.latency;
+                  const lastReceivedLocalMillis = Date.parse(
+                    socket.lastReceivedLocalTime,
+                  );
                   const lastReceivedRemoteMillis = Date.parse(
                     socket.lastReceivedRemoteTime,
                   );
-                  const lastReceivedLocalMills = Date.parse(
-                    socket.lastReceivedLocalTime,
                   );
                   const replicationTime =
-                    lastReceivedRemoteMillis - lastReceivedLocalMills;
+                    lastReceivedLocalMillis - lastReceivedRemoteMillis;
                   gaugeSet(
                     replication_backlog_time_gauge,
                     { node: node?.name, database: socket.database },
