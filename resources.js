@@ -435,7 +435,7 @@ class metrics extends Resource {
 
     let system_info;
     if (notFast) {
-      system_info = await hdb_analytics.operation({
+      system_info = await server.operation({
         operation: "system_information",
         attributes: ["database_metrics", "replication", "threads", "memory"],
       });
