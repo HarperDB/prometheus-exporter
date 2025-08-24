@@ -24,54 +24,54 @@ contentTypes.set("application/openmetrics-text", {
 });
 
 const puts_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_puts_total",
-  help: "Total number of non-delete writes by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_puts_total",
+  help: "Total number of non-delete writes by database",
+  labelNames: ["database"],
 });
 const deletes_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_deletes_total",
-  help: "Total number of deletes by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_deletes_total",
+  help: "Total number of deletes by database",
+  labelNames: ["database"],
 });
 const txns_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_txns_total",
-  help: "Total number of transactions by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_txns_total",
+  help: "Total number of transactions by database",
+  labelNames: ["database"],
 });
 const page_flushes_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_page_flushes_total",
-  help: "Total number of times all pages are flushed by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_page_flushes_total",
+  help: "Total number of times all pages are flushed by database",
+  labelNames: ["database"],
 });
 const writes_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_writes_total",
-  help: "Total number of disk write operations by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_writes_total",
+  help: "Total number of disk write operations by database",
+  labelNames: ["database"],
 });
 const pages_written_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_pages_written_total",
-  help: "Total number of pages written to disk by table. This is higher than writes because sequential pages can be written in a single write operation.",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_pages_written_total",
+  help: "Total number of pages written to disk by database. This is higher than writes because sequential pages can be written in a single write operation.",
+  labelNames: ["database"],
 });
 const time_during_txns_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_time_during_txns_total",
-  help: "Total time from when transaction was started (lock acquired) until finished and all writes have been made (but not necessarily flushed/synced to disk) by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_time_during_txns_total",
+  help: "Total time from when transaction was started (lock acquired) until finished and all writes have been made (but not necessarily flushed/synced to disk) by database",
+  labelNames: ["database"],
 });
 const time_start_txns_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_time_start_txns_total",
-  help: "Total time spent waiting for transaction lock acquisition by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_time_start_txns_total",
+  help: "Total time spent waiting for transaction lock acquisition by database",
+  labelNames: ["database"],
 });
 const time_page_flushes_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_time_page_flushes_total",
-  help: "Total time spent on write calls by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_time_page_flushes_total",
+  help: "Total time spent on write calls by database",
+  labelNames: ["database"],
 });
 const time_sync_gauge = new Prometheus.Gauge({
-  name: "harperdb_table_time_sync_total",
-  help: "Total time spent waiting for writes to sync/flush to disk by table",
-  labelNames: ["database", "table"],
+  name: "harperdb_database_time_sync_total",
+  help: "Total time spent waiting for writes to sync/flush to disk by database",
+  labelNames: ["database"],
 });
 
 const thread_count_gauge = new Prometheus.Gauge({
@@ -435,7 +435,7 @@ class metrics extends Resource {
 
     let system_info;
     if (notFast) {
-      system_info = await hdb_analytics.operation({
+      system_info = await server.operation({
         operation: "system_information",
         attributes: ["database_metrics", "replication", "threads", "memory"],
       });
@@ -598,32 +598,28 @@ class metrics extends Resource {
     }
 
     if (system_info?.metrics) {
-      for (const [database_name, table_object] of Object.entries(
+      for (const [databaseName, databaseMetrics] of Object.entries(
         system_info?.metrics,
       )) {
-        for (const [table_name, table_metrics] of Object.entries(
-          table_object,
-        )) {
-          const labels = { database: database_name, table: table_name };
-          gaugeSet(puts_gauge, labels, table_metrics?.puts);
-          gaugeSet(deletes_gauge, labels, table_metrics?.deletes);
-          gaugeSet(txns_gauge, labels, table_metrics?.txns);
-          gaugeSet(page_flushes_gauge, labels, table_metrics?.pageFlushes);
-          gaugeSet(writes_gauge, labels, table_metrics?.writes);
-          gaugeSet(pages_written_gauge, labels, table_metrics?.pagesWritten);
-          gaugeSet(
-            time_during_txns_gauge,
-            labels,
-            table_metrics?.timeDuringTxns,
-          );
-          gaugeSet(time_start_txns_gauge, labels, table_metrics?.timeStartTxns);
-          gaugeSet(
-            time_page_flushes_gauge,
-            labels,
-            table_metrics?.timePageFlushes,
-          );
-          gaugeSet(time_sync_gauge, labels, table_metrics?.timeSync);
-        }
+        const labels = { database: databaseName };
+        gaugeSet(puts_gauge, labels, databaseMetrics.puts);
+        gaugeSet(deletes_gauge, labels, databaseMetrics.deletes);
+        gaugeSet(txns_gauge, labels, databaseMetrics.txns);
+        gaugeSet(page_flushes_gauge, labels, databaseMetrics.pageFlushes);
+        gaugeSet(writes_gauge, labels, databaseMetrics.writes);
+        gaugeSet(pages_written_gauge, labels, databaseMetrics.pagesWritten);
+        gaugeSet(
+          time_during_txns_gauge,
+          labels,
+          databaseMetrics.timeDuringTxns,
+        );
+        gaugeSet(time_start_txns_gauge, labels, databaseMetrics.timeStartTxns);
+        gaugeSet(
+          time_page_flushes_gauge,
+          labels,
+          databaseMetrics.timePageFlushes,
+        );
+        gaugeSet(time_sync_gauge, labels, databaseMetrics.timeSync);
       }
     }
 
